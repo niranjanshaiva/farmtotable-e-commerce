@@ -1,107 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Farm to Table – Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700|Inter:400,600,700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700|Inter:400,600,700&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
       background: linear-gradient(120deg, #0c2c17 90%, #133a20 100%);
-      font-family: 'Inter', 'Nunito', Arial, sans-serif;
-      min-height: 100vh;
+      font-family: 'Inter', 'Nunito', sans-serif;
       color: #fff;
+      margin: 0;
     }
     header {
-      background: #11291b;
-      color: #fff;
-      padding: 22px 0 14px 0;
+      padding: 20px 0;
       text-align: center;
-      font-size: 2.2em;
-      font-family: 'Nunito', sans-serif;
-      letter-spacing: 1.2px;
+      font-size: 2em;
+      background: #11291b;
+      border-bottom: 3px solid #20ae6a;
       font-weight: 800;
-      box-shadow: 0 2px 20px #0008;
-      border-bottom: 2px solid #20ae6a;
     }
     .login-card {
       background: #18271e;
-      max-width: 400px;
-      margin: 50px auto 0 auto;
-      padding: 44px 30px 32px 30px;
-      border-radius: 21px;
-      box-shadow: 0 8px 40px #1eb05d32;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      max-width: 430px;
+      margin: 50px auto;
+      padding: 40px 30px;
+      border-radius: 18px;
+      box-shadow: 0 6px 30px #1eb05d43;
     }
     h2 {
-      color: #20ae6a;
-      font-family: 'Nunito', Arial, sans-serif;
-      font-size: 1.6em;
-      margin-bottom: 10px;
-      font-weight: 800;
-      letter-spacing: 0.7px;
       text-align: center;
+      margin-bottom: 20px;
+      color: #20ae6a;
+      font-size: 1.5em;
     }
     select, input {
       width: 100%;
-      padding: 13px 11px;
-      border-radius: 8px;
-      border: 1.4px solid #404c44;
-      background: #233929;
-      color: #fff;
-      font-size: 1.04em;
-      margin-bottom: 8px;
-      font-family: inherit;
-      transition: border 0.19s;
+      padding: 12px;
+      border-radius: 7px;
+      border: 1px solid #304a3f;
+      background: #223c2c;
+      color: white;
+      margin-bottom: 15px;
+      font-size: 1em;
     }
-    select:focus, input:focus {
+    input:focus, select:focus {
       border-color: #20ae6a;
-      background: #294735;
+      background: #294835;
       outline: none;
     }
     button {
-      background: #20ae6a;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 0;
+      padding: 13px;
       width: 100%;
+      background: #20ae6a;
+      border: none;
+      color: white;
+      font-weight: 600;
       font-size: 1.1em;
-      font-weight: 700;
-      font-family: inherit;
+      border-radius: 7px;
       cursor: pointer;
-      margin-top: 9px;
-      box-shadow: 0 2px 13px #1eb05d32;
-      transition: background 0.19s;
     }
-    button:hover {
-      background: #176c33;
-    }
+    button:hover { background: #1aa566; }
     .switch-link {
       text-align: center;
-      margin-top: 15px;
-      font-size: 1em;
+      margin-top: 18px;
+      font-size: 0.96em;
     }
-    .switch-link a { color: #20ae6a; text-decoration: underline;}
-    #role {
-      background: #294a3b;
-    }
+    .switch-link a { color: #20ae6a; }
   </style>
 </head>
 <body>
+
   <header>Farm to Table – Login</header>
+
   <div class="login-card">
     <h2>Sign In</h2>
-    <select id="role" onchange="toggleAdmin()" style="margin-bottom: 10px;">
+    <select id="role" onchange="toggleAdmin()">
       <option value="farmer">👨‍🌾 Farmer</option>
       <option value="buyer">🛒 Buyer</option>
       <option value="admin">👑 Admin</option>
     </select>
-    <input type="text" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
+
+    <input type="text" id="email" placeholder="Email or 'admin'">
+    <input type="password" id="password" placeholder="Password">
     <button onclick="login()">Login</button>
     <div class="switch-link">
       Don't have an account? <a href="register.html">Register</a>
@@ -109,7 +90,8 @@
   </div>
 
   <script>
-    // Auto-set email field for admin
+    const API_BASE_URL = "https://farmtotable-e-commerce-jvonejzm1-niranjanshaivas-projects.vercel.app/"; // ← Replace this
+
     function toggleAdmin() {
       const role = document.getElementById("role").value;
       const emailField = document.getElementById("email");
@@ -121,36 +103,35 @@
         emailField.disabled = false;
       }
     }
+
     toggleAdmin();
 
     async function login() {
       const role = document.getElementById("role").value;
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      if (!password) return alert("Please enter password");
 
-      // Use relative URL for deployed frontend (same domain)
-      const response = await fetch("/login", {
+      if (!email || !password) return alert("Please enter both email and password");
+
+      const res = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role })
+        body: JSON.stringify({ role, email, password }),
       });
 
-      const data = await response.json();
-      if (data.error) {
-        alert("❌ Login failed: " + data.error);
+      const data = await res.json();
+
+      if (data.error) return alert("❌ Login Failed: " + data.error);
+
+      // ✅ Success – redirect to role-specific page
+      if (data.role === "admin") {
+        window.location.href = "admin.html";
+      } else if (data.role === "farmer") {
+        window.location.href = "farmer.html";
+      } else if (data.role === "buyer") {
+        window.location.href = "buyer.html";
       } else {
-        // Redirect user based on their role
-        if (data.role === "admin") {
-          // Use ./admin.html if your file is named that, change if you use directory-style routing on Vercel!
-          window.location.href = "admin.html";
-        } else if (data.role === "farmer") {
-          window.location.href = "farmer.html";
-        } else if (data.role === "buyer") {
-          window.location.href = "buyer.html";
-        } else {
-          alert("Login successful! But unknown user role.");
-        }
+        alert("✅ Login successful, but unknown role.");
       }
     }
   </script>
