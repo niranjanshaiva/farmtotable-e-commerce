@@ -113,7 +113,6 @@
     function toggleAdmin() {
       const role = document.getElementById("role").value;
       const emailField = document.getElementById("email");
-
       if (role === "admin") {
         emailField.value = "admin";
         emailField.disabled = true;
@@ -122,17 +121,16 @@
         emailField.disabled = false;
       }
     }
-
-    toggleAdmin(); // Initialize on page load
+    toggleAdmin();
 
     async function login() {
       const role = document.getElementById("role").value;
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-
       if (!password) return alert("Please enter password");
 
-      const response = await fetch("http://localhost:5000/login", {
+      // Use relative URL for deployed frontend (same domain)
+      const response = await fetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role })
@@ -142,8 +140,17 @@
       if (data.error) {
         alert("❌ Login failed: " + data.error);
       } else {
-        alert("✅ Welcome " + data.name + "!");
-        // Redirect logic could go here
+        // Redirect user based on their role
+        if (data.role === "admin") {
+          // Use ./admin.html if your file is named that, change if you use directory-style routing on Vercel!
+          window.location.href = "admin.html";
+        } else if (data.role === "farmer") {
+          window.location.href = "farmer.html";
+        } else if (data.role === "buyer") {
+          window.location.href = "buyer.html";
+        } else {
+          alert("Login successful! But unknown user role.");
+        }
       }
     }
   </script>
