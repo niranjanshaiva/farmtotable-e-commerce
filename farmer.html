@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Farm to Table – Farmer Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700|Nunito:400,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #177a3c;
+      --secondary: #0e4121;
+      --accent: #26a65b;
+      --lightbg: #f4f9f6;
+      --panel: #212e25;
+      --white: #fff;
+      --danger: #e05555;
+    }
+    body {
+      background: linear-gradient(120deg, var(--primary) 60%, var(--secondary) 100%);
+      font-family: 'Inter', 'Nunito', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: var(--white);
+    }
+    header {
+      background: var(--secondary);
+      color: var(--white);
+      text-align: center;
+      padding: 22px 0 14px 0;
+      font-size: 2.2em;
+      font-family: 'Nunito', sans-serif;
+      letter-spacing: 0.9px;
+      font-weight: 800;
+      box-shadow: 0 2px 20px #0006;
+      border-bottom: 2.5px solid var(--accent);
+    }
+    .container {
+      max-width: 1050px;
+      margin: 46px auto 0 auto;
+      padding: 0 3vw 40px 3vw;
+    }
+    .row {
+      display: flex;
+      gap: 38px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .card {
+      background: var(--panel);
+      border-radius: 16px;
+      box-shadow: 0 5px 25px #0f201010;
+      padding: 34px 32px 22px 32px;
+      min-width: 340px;
+      flex: 1 1 350px;
+      margin-bottom: 21px;
+    }
+    h2 {
+      color: var(--accent);
+      font-family: inherit;
+      margin-top: 0;
+      margin-bottom: 22px;
+      font-weight: 800;
+    }
+    label, .form-label {
+      color: var(--accent);
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: block;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 12px;
+      margin-bottom: 13px;
+      border-radius: 8px;
+      border: 1.2px solid var(--primary);
+      background: #183723;
+      color: var(--white);
+      font-size: 1.06em;
+      font-family: inherit;
+      transition: border 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      outline: none;
+      background: #29513b;
+    }
+    .btn-row { display: flex; gap: 10px; margin-top:11px;}
+    button {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 23px;
+      font-size: 1.07em;
+      font-family: inherit;
+      font-weight: 700;
+      box-shadow: 0 2px 12px #26a65b23;
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: background 0.14s;
+    }
+    button:hover {
+      background: #22bb68;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1c2a20;
+      color: var(--white);
+      border-radius: 9px;
+      box-shadow: 0 3px 17px #0e41211b;
+      font-size: 1em;
+      margin-top: 18px;
+    }
+    th, td {
+      padding: 13px 7px;
+      border-bottom: 1px solid #29513b;
+      text-align: center;
+    }
+    th {
+      background: #255e36;
+      color: #eee;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .actions button {
+      border-radius: 6px;
+      padding: 7px 15px;
+      font-size: .99em;
+      margin:0 1px;
+      box-shadow: none;
+    }
+    .actions .save-btn { background: var(--accent);}
+    .actions .cancel-btn {background: #666;}
+    .actions .edit-btn { background: #fdbc34; color:#382901;}
+    .actions .delete-btn { background: var(--danger);}
+    @media (max-width:900px){
+      .row{flex-direction:column;}
+      .container{padding:0 5vw;}
+    }
+    @media (max-width:510px){
+      header{font-size:1.2em;}
+      .card, .container{padding:14px 7vw;}
+      table{font-size:0.91em;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Farm to Table – Farmer Page
+  </header>
+  <div class="container">
+    <div class="row">
+      <div class="card">
+        <h2>Add New Product</h2>
+        <label>Category</label>
+        <select id="category">
+          <option value="vegetable">Vegetable</option>
+          <option value="fruit">Fruit</option>
+          <option value="dairy">Dairy</option>
+          <option value="other">Other</option>
+        </select>
+        <label>Item Name</label>
+        <input type="text" id="itemName" placeholder="e.g. Carrot">
+        <label>Quantity (kg)</label>
+        <input type="number" id="quantity" min="1">
+        <label>Price per kg</label>
+        <input type="number" id="price" min="1">
+        <label>Your Email</label>
+        <input type="email" id="farmerEmail" placeholder="(used as ID)">
+        <div class="btn-row">
+          <button onclick="addProduct()">Add</button>
+          <button onclick="loadProducts()">View My Products</button>
+        </div>
+      </div>
+      <div class="card" style="min-width:320px;">
+        <h2>Your Products</h2>
+        <div id="productList"><span style="color:#ccc;">Enter your email and click "View My Products"</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let editId = null;
+    async function addProduct() {
+      const name = document.getElementById("itemName").value;
+      const category = document.getElementById("category").value;
+      const quantity = document.getElementById("quantity").value;
+      const price = document.getElementById("price").value;
+      const farmerEmail = document.getElementById("farmerEmail").value;
+      if (!name || !category || !quantity || !price || !farmerEmail) {
+        alert("All fields are required"); return;
+      }
+      const res = await fetch("http://localhost:5000/add-product", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({farmerEmail, name, category, quantity, price})
+      });
+      const data = await res.json();
+      if (data.success) {
+        clearForm();
+        loadProducts();
+        alert("✅ Product added!");
+      } else alert("❌ Failed to add");
+    }
+    function clearForm() {
+      ["itemName","quantity","price"].forEach(x=>{document.getElementById(x).value = '';});
+    }
+    async function loadProducts() {
+      const farmerEmail = document.getElementById("farmerEmail").value;
+      if (!farmerEmail) {
+        document.getElementById("productList").innerHTML =
+          "<span style='color:#ccc;'>Enter your email above and click 'View My Products'</span>";
+        return;
+      }
+      const res = await fetch(`http://localhost:5000/products?farmerEmail=${encodeURIComponent(farmerEmail)}`);
+      const products = await res.json();
+      if (products.length === 0) {
+        document.getElementById("productList").innerHTML = "<em>No products found.</em>";
+        return;
+      }
+      const html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Category</th><th>Qty</th><th>Price</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${products.map(p =>
+              editId===p._id ?
+              `<tr>
+                <td><input id="editName" value="${p.name}"></td>
+                <td>
+                  <select id="editCategory">
+                    <option value="vegetable" ${p.category==='vegetable'?'selected':''}>Vegetable</option>
+                    <option value="fruit" ${p.category==='fruit'?'selected':''}>Fruit</option>
+                    <option value="dairy" ${p.category==='dairy'?'selected':''}>Dairy</option>
+                    <option value="other" ${p.category==='other'?'selected':''}>Other</option>
+                  </select>
+                </td>
+                <td><input type="number" id="editQuantity" value="${p.quantity}"></td>
+                <td><input type="number" id="editPrice" value="${p.price}"></td>
+                <td class="actions">
+                  <button class="save-btn" onclick="saveEdit('${p._id}')">Save</button>
+                  <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                </td>
+              </tr>`
+              :
+              `<tr>
+                <td>${p.name}</td>
+                <td>${p.category}</td>
+                <td>${p.quantity}</td>
+                <td>₹${p.price}</td>
+                <td class="actions">
+                  <button class="edit-btn" onclick="editProduct('${p._id}')">Edit</button>
+                  <button class="delete-btn" onclick="deleteProduct('${p._id}')">Delete</button>
+                </td>
+              </tr>`
+            ).join("")}
+          </tbody>
+        </table>
+      `;
+      document.getElementById("productList").innerHTML = html;
+    }
+    function editProduct(id) { editId = id; loadProducts(); }
+    function cancelEdit() { editId = null; loadProducts(); }
+    async function saveEdit(id) {
+      const name = document.getElementById("editName").value;
+      const category = document.getElementById("editCategory").value;
+      const quantity = document.getElementById("editQuantity").value;
+      const price = document.getElementById("editPrice").value;
+      const res = await fetch(`http://localhost:5000/update-product/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, category, quantity, price })
+      });
+      const data = await res.json();
+      if (data.success) {
+        editId = null;
+        loadProducts();
+        alert("✅ Product updated!");
+      } else alert("❌ Failed to update.");
+    }
+    async function deleteProduct(id) {
+      if (!confirm("Are you sure you want to delete this product?")) return;
+      const res = await fetch(`http://localhost:5000/delete-product/${id}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        loadProducts();
+        alert("🗑️ Product deleted.");
+      } else alert("❌ Failed to delete.");
+    }
+  </script>
+</body>
+</html>

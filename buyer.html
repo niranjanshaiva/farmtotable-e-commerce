@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Farm to Table – Buyer Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700|Inter:400,600,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #15613d;
+      --secondary: #214c2f;
+      --accent: #0fec77;
+      --card-bg: #1d2b23;
+      --main-bg: #18311d;
+      --white: #fff;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', 'Nunito', Arial, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 50%, var(--secondary) 100%);
+      color: var(--white);
+    }
+    header {
+      background: var(--secondary);
+      color: #fff;
+      padding: 22px 0 14px 0;
+      text-align: center;
+      font-size: 2.2em;
+      font-family: 'Nunito', sans-serif;
+      letter-spacing: 1.2px;
+      font-weight: 800;
+      box-shadow: 0 2px 20px #0007;
+      border-bottom: 2.5px solid var(--accent);
+    }
+    .container {
+      max-width: 1200px;
+      margin: 48px auto 0 auto;
+      padding: 0 4vw 54px 4vw;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: 0 4px 29px #0fec7718;
+      padding: 29px 28px 21px 28px;
+      margin-bottom: 37px;
+    }
+    .grid-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 35px;
+    }
+    .section-header {
+      color: var(--accent);
+      margin: 0 0 19px 0;
+      font-size: 1.35em;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+    }
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 23px;
+    }
+    input, select {
+      background: #233926;
+      border: 1.35px solid #187446;
+      color: var(--white);
+      font-size: 1.06em;
+      font-family: inherit;
+      padding: 12px 11px;
+      border-radius: 8px;
+      margin-right: 8px;
+      transition: border 0.17s;
+    }
+    input:focus, select:focus { border-color: var(--accent); outline: none; background: #284731 }
+    button {
+      background: var(--accent);
+      color: #222;
+      border: none;
+      font-size: 1.08em;
+      border-radius: 7px;
+      padding: 12px 23px;
+      font-weight: 700;
+      transition: background 0.15s;
+      box-shadow: 0 2px 9px #0fec7722;
+      cursor: pointer;
+    }
+    button:hover { background: #22e88a; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #153021;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 1em;
+      box-shadow: 0 2px 16px #26a65b11;
+      margin-bottom:14px;
+    }
+    th, td {
+      padding: 13px 8px;
+      border-bottom: 1px solid #2f4735;
+      text-align: center;
+    }
+    th { background: #225232; color: #f0fff4; font-weight: 700;}
+    .cart-table{margin-top:15px;}
+    .addcart-btn, .remove-btn {
+      background: #0fec77; color: #153021;
+      border: none; border-radius: 5px; font-size: 0.98em;
+      padding: 9px 17px; cursor:pointer;
+      margin:0 2px;
+      font-weight:700;
+    }
+    .remove-btn { background:#e05555; color:#fff;}
+    .addcart-btn:hover { background: #19cd6c;}
+    .remove-btn:hover { background: #b03a2e;}
+    @media (max-width:900px){
+      .container, .card{padding:13px 6vw;}
+      .search-row{flex-direction:column;}
+    }
+    @media (max-width:520px){
+      header{font-size:1.02em;}
+      .card, .container{padding:8px 3vw;}
+      table{font-size:0.93em;}
+    }
+  </style>
+</head>
+<body>
+  <header>Farm to Table – Buyer Page</header>
+  <div class="container">
+    <div class="card">
+      <div class="section-header">Shop Fresh Farm Products</div>
+      <div class="search-row">
+        <input type="text" id="search" placeholder="Search by item name">
+        <select id="filter">
+          <option value="all">All Categories</option>
+          <option value="vegetable">Vegetable</option>
+          <option value="fruit">Fruit</option>
+          <option value="dairy">Dairy</option>
+          <option value="other">Other</option>
+        </select>
+        <button onclick="loadProducts()">Search</button>
+      </div>
+      <div id="productsSection"></div>
+    </div>
+    <div class="card">
+      <div class="section-header">My Cart</div>
+      <div id="cartSection"></div>
+      <button onclick="checkoutCart()" id="checkoutBtn">💳 Checkout</button>
+    </div>
+  </div>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    let cart = [];
+    async function loadProducts() {
+      const search = document.getElementById("search").value.trim().toLowerCase();
+      const filter = document.getElementById("filter").value;
+      const res = await fetch("http://localhost:5000/all-products");
+      let products = await res.json();
+      if (filter !== "all") products = products.filter(p => p.category === filter);
+      if (search) products = products.filter(p => p.name.toLowerCase().includes(search));
+      const rows = products.map(p => `
+        <tr>
+          <td>${p.name}</td>
+          <td>${p.category}</td>
+          <td>${p.quantity} kg</td>
+          <td>₹${p.price}</td>
+          <td>
+            <input type="number" min="1" max="${p.quantity}" id="qty-${p._id}" style="width:60px;">
+            <button class="addcart-btn" onclick="addToCart('${p._id}','${p.name}',${p.price})">Add</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById("productsSection").innerHTML =
+        products.length ? `<table>
+        <thead><tr><th>Name</th><th>Category</th><th>Available</th><th>Price/kg</th><th>Add to Cart</th></tr></thead>
+        <tbody>${rows}</tbody></table>` : "<p>No products found.</p>";
+    }
+    function addToCart(id, name, price) {
+      const qty = parseInt(document.getElementById(`qty-${id}`).value);
+      if (!qty || qty <= 0) return alert("Enter quantity");
+      const existing = cart.find(item => item.id === id);
+      if (existing) { existing.qty += qty; } else { cart.push({ id, name, price, qty }); }
+      showCart();
+    }
+    function showCart() {
+      if (cart.length === 0) {
+        document.getElementById("cartSection").innerHTML = "<p>Cart is empty.</p>";
+        return;
+      }
+      let total = 0;
+      const rows = cart.map((item, idx) => {
+        const sub = item.price * item.qty;
+        total += sub;
+        return `<tr>
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>₹${item.price}</td>
+          <td>₹${sub}</td>
+          <td><button class="remove-btn" onclick="removeFromCart(${idx})">Remove</button></td>
+        </tr>`;
+      }).join('');
+      const grandTotal = (total * 1.015).toFixed(2);
+      document.getElementById("cartSection").innerHTML = `<table class="cart-table">
+        <thead><tr><th>Name</th><th>Qty</th><th>Price/kg</th><th>Total</th><th>Action</th></tr></thead>
+        <tbody>${rows}<tr>
+          <td colspan="3"><b>Total + 1.5% Fee:</b></td>
+          <td colspan="2"><b>₹${grandTotal}</b></td>
+        </tr></tbody>
+      </table>`;
+    }
+    function removeFromCart(idx) {
+      cart.splice(idx, 1); showCart();
+    }
+    async function checkoutCart() {
+      if (cart.length === 0) return alert("Cart is empty!");
+      const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const finalAmount = +(total * 1.015).toFixed(2);
+      const res = await fetch("http://localhost:5000/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ totalAmount: finalAmount })
+      });
+      const order = await res.json();
+      const options = {
+        key: "rzp_test_J3RQxpf2LltUfP", // YOUR real key
+        amount: order.amount,
+        currency: "INR",
+        name: "Farm to Table",
+        description: "Checkout Payment",
+        order_id: order.id,
+        handler: async function (response) {
+          alert("✅ Payment successful!");
+          await fetch("http://localhost:5000/record-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              buyerEmail: "buyer@example.com",
+              items: cart,
+              totalAmount: finalAmount,
+              paymentId: response.razorpay_payment_id
+            })
+          });
+          cart = [];
+          showCart();
+        },
+        prefill: { name: "Buyer", email: "buyer@example.com" },
+        theme: { color: "#0fec77" }
+      };
+      const razor = new Razorpay(options); razor.open();
+    }
+    // Initialize
+    loadProducts();
+    showCart();
+  </script>
+</body>
+</html>

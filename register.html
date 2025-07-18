@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Farm to Table – Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700|Inter:400,600,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(120deg, #0c2c17 80%, #133a20 100%);
+      margin: 0;
+      font-family: 'Inter', 'Nunito', Arial, sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    header {
+      background: #11291b;
+      color: #fff;
+      padding: 22px 0 14px 0;
+      text-align: center;
+      font-size: 2.2em;
+      font-family: 'Nunito', sans-serif;
+      letter-spacing: 1.2px;
+      font-weight: 800;
+      box-shadow: 0 2px 20px #0008;
+      border-bottom: 2px solid #20ae6a;
+    }
+    .reg-card {
+      background: #18271e;
+      max-width: 440px;
+      margin: 50px auto 0 auto;
+      padding: 44px 35px 32px 35px;
+      border-radius: 21px;
+      box-shadow: 0 8px 40px #1eb05d34;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    h2 {
+      color: #20ae6a;
+      font-family: 'Nunito', Arial, sans-serif;
+      font-size: 1.55em;
+      margin-bottom: 10px;
+      font-weight: 800;
+      letter-spacing: 0.7px;
+      text-align: center;
+    }
+    select, input {
+      width: 100%;
+      padding: 13px 11px;
+      border-radius: 8px;
+      border: 1.4px solid #404c44;
+      background: #233929;
+      color: #fff;
+      font-size: 1.05em;
+      margin-bottom: 8px;
+      font-family: inherit;
+      transition: border 0.18s;
+    }
+    select:focus, input:focus {
+      border-color: #20ae6a;
+      background: #294735;
+      outline: none;
+    }
+    button {
+      background: #20ae6a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 0;
+      width: 100%;
+      font-size: 1.09em;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 2px 13px #1eb05d24;
+      margin-top: 7px;
+      transition: background 0.19s;
+    }
+    button:hover {
+      background: #176c33;
+    }
+    .switch-link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 1em;
+    }
+    .switch-link a { color: #20ae6a; text-decoration: underline;}
+    @media (max-width:500px) {
+      .reg-card { padding: 15px 4vw;}
+      header { font-size: 1em;}
+    }
+  </style>
+</head>
+<body>
+  <header>Farm to Table – Register</header>
+  <div class="reg-card">
+    <h2>Create Account</h2>
+    <input type="text" id="name" placeholder="Name">
+    <input type="email" id="email" placeholder="Email">
+    <input type="text" id="phone" placeholder="Phone Number">
+    <input type="password" id="password" placeholder="Password">
+    <input type="password" id="confirm" placeholder="Confirm Password">
+    <select id="role">
+      <option value="farmer">Farmer</option>
+      <option value="buyer">Buyer</option>
+    </select>
+    <button onclick="register()">Register</button>
+    <div class="switch-link">
+      Already registered? <a href="index.html">Login</a>
+    </div>
+  </div>
+  <script>
+    async function register() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm").value;
+      const role = document.getElementById("role").value;
+      if (!name || !email || !phone || !password || !confirm) {
+        alert("Please fill all fields."); return;
+      }
+      if (password !== confirm) {
+        alert("Passwords do not match!"); return;
+      }
+      const response = await fetch("http://localhost:5000/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, password, role })
+      });
+      const data = await response.json();
+      if (data.error) {
+        alert("❌ Error: " + data.error);
+      } else {
+        alert("✅ Registration successful! Login now.");
+      }
+    }
+  </script>
+</body>
+</html>

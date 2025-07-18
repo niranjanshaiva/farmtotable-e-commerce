@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Farm to Table – Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,700|Inter:400,600,700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(120deg, #0c2c17 90%, #133a20 100%);
+      font-family: 'Inter', 'Nunito', Arial, sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    header {
+      background: #11291b;
+      color: #fff;
+      padding: 22px 0 14px 0;
+      text-align: center;
+      font-size: 2.2em;
+      font-family: 'Nunito', sans-serif;
+      letter-spacing: 1.2px;
+      font-weight: 800;
+      box-shadow: 0 2px 20px #0008;
+      border-bottom: 2px solid #20ae6a;
+    }
+    .login-card {
+      background: #18271e;
+      max-width: 400px;
+      margin: 50px auto 0 auto;
+      padding: 44px 30px 32px 30px;
+      border-radius: 21px;
+      box-shadow: 0 8px 40px #1eb05d32;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    h2 {
+      color: #20ae6a;
+      font-family: 'Nunito', Arial, sans-serif;
+      font-size: 1.6em;
+      margin-bottom: 10px;
+      font-weight: 800;
+      letter-spacing: 0.7px;
+      text-align: center;
+    }
+    select, input {
+      width: 100%;
+      padding: 13px 11px;
+      border-radius: 8px;
+      border: 1.4px solid #404c44;
+      background: #233929;
+      color: #fff;
+      font-size: 1.04em;
+      margin-bottom: 8px;
+      font-family: inherit;
+      transition: border 0.19s;
+    }
+    select:focus, input:focus {
+      border-color: #20ae6a;
+      background: #294735;
+      outline: none;
+    }
+    button {
+      background: #20ae6a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 0;
+      width: 100%;
+      font-size: 1.1em;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 9px;
+      box-shadow: 0 2px 13px #1eb05d32;
+      transition: background 0.19s;
+    }
+    button:hover {
+      background: #176c33;
+    }
+    .switch-link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 1em;
+    }
+    .switch-link a { color: #20ae6a; text-decoration: underline;}
+    #role {
+      background: #294a3b;
+    }
+  </style>
+</head>
+<body>
+  <header>Farm to Table – Login</header>
+  <div class="login-card">
+    <h2>Sign In</h2>
+    <select id="role" onchange="toggleAdmin()" style="margin-bottom: 10px;">
+      <option value="farmer">👨‍🌾 Farmer</option>
+      <option value="buyer">🛒 Buyer</option>
+      <option value="admin">👑 Admin</option>
+    </select>
+    <input type="text" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <div class="switch-link">
+      Don't have an account? <a href="register.html">Register</a>
+    </div>
+  </div>
+
+  <script>
+    // Auto-set email field for admin
+    function toggleAdmin() {
+      const role = document.getElementById("role").value;
+      const emailField = document.getElementById("email");
+
+      if (role === "admin") {
+        emailField.value = "admin";
+        emailField.disabled = true;
+      } else {
+        emailField.value = "";
+        emailField.disabled = false;
+      }
+    }
+
+    toggleAdmin(); // Initialize on page load
+
+    async function login() {
+      const role = document.getElementById("role").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if (!password) return alert("Please enter password");
+
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role })
+      });
+
+      const data = await response.json();
+      if (data.error) {
+        alert("❌ Login failed: " + data.error);
+      } else {
+        alert("✅ Welcome " + data.name + "!");
+        // Redirect logic could go here
+      }
+    }
+  </script>
+</body>
+</html>
